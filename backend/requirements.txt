@@ -1,0 +1,5 @@
+Flask==2.0.1
+torch==1.9.0
+torchvision==0.10.0
+flask-cors==3.0.10
+Pillow==8.2.0
