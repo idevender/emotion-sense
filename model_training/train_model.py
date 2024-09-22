@@ -19,7 +19,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 LEARNING_RATE = 0.002
 BATCH_SIZE = 32
 NUM_EPOCHS = 50
-MODEL_PATH = '../backend/model/emotion_model.pth'
+MODEL_PATH = '../backend/emotion_model.pth'
 
 # Define the Dataset class to handle the images
 

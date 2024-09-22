@@ -82,11 +82,6 @@ The frontend is built using React, allowing users to upload images and get emoti
 
 4.  The frontend will be running on `http://localhost:3000`.
 
-Emotion Recognition System Overview
------------------------------------
-
-Upon launching the system, you will be presented with a user-friendly interface that allows you to upload an image, and the system will predict the emotion (Angry, Happy, or Sad).
-
 ### Key Components
 
 -   **Model**: A DenseNet169-based convolutional neural network (CNN) pretrained on ImageNet and fine-tuned for emotion recognition.
@@ -94,7 +89,22 @@ Upon launching the system, you will be presented with a user-friendly interface 
 -   **Frontend**: A React-based interface for image uploading and displaying the predicted emotion.
 
 ### Result
-![sample_result](backend/results.png)
+
+<table>
+  <tr>
+    <th>Uploaded Image</th>
+    <th>Prediction Result</th>
+  </tr>
+  <tr>
+    <td>
+      <img src="https://images.unsplash.com/photo-1602932213623-cc17e9541bb4?auto=format&fit=crop&w=300&q=80" alt="Happy person" width="300">
+    </td>
+    <td>
+      <img src="backend/results.png" alt="Prediction results" width="300">
+    </td> 
+  </tr>
+</table>
+When you upload an image of a person (like the one shown above), the system analyzes it and provides a prediction of the person's emotional state, as demonstrated in the results image.
 
 Future Improvements
 -------------------

@@ -17,7 +17,7 @@ CORS(app, resources={
 # Define the model
 
 # Model path
-MODEL_PATH = '../model_training/emotion_model.pth'
+MODEL_PATH = '../backend/emotion_model.pth'
 
 # Load the DenseNet model
 
