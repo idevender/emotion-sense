@@ -94,7 +94,7 @@ Upon launching the system, you will be presented with a user-friendly interface 
 -   **Frontend**: A React-based interface for image uploading and displaying the predicted emotion.
 
 ### Result
-![sample_result](results.png)
+![sample_result](backend/results.png)
 
 Future Improvements
 -------------------
