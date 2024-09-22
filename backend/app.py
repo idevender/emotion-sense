@@ -12,58 +12,39 @@ import traceback
 
 app = Flask(__name__)
 CORS(app, resources={
-     r"/*": {"origins": ["http://localhost:3001", "http://127.0.0.1:3001"]}})
+     r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}})
 
 # Define the model
 
+# Model path
+MODEL_PATH = '../model_training/emotion_model.pth'
 
-class EmotionCNN(nn.Module):
-    def __init__(self):
-        super(EmotionCNN, self).__init__()
-        self.conv_layers = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            nn.Conv2d(32, 64, kernel_size=3),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-        )
-        self.fc_layers = nn.Sequential(
-            nn.Linear(64 * 10 * 10, 128),
-            nn.ReLU(),
-            nn.Dropout(0.5),
-            nn.Linear(128, 3)
-        )
-
-    def forward(self, x):
-        x = self.conv_layers(x)
-        x = x.view(x.size(0), -1)
-        x = self.fc_layers(x)
-        return x
+# Load the DenseNet model
 
 
-# Load the trained model
-model = EmotionCNN()
-# After loading the model
-sample_input = torch.randn(1, 1, 48, 48)  # Create a random tensor
-with torch.no_grad():
-    sample_output = model(sample_input)
-print("Sample prediction:", sample_output)
-
-try:
+def get_densenet_model(num_classes=3):
+    model = torch.hub.load('pytorch/vision', 'densenet169', pretrained=False)
+    num_features = model.classifier.in_features
+    model.classifier = nn.Sequential(
+        nn.Linear(num_features, 512),
+        nn.ReLU(),
+        nn.Dropout(0.5),
+        nn.Linear(512, num_classes)
+    )
     model.load_state_dict(torch.load(
-        'model/emotion_model.pth', map_location=torch.device('cpu'), weights_only=True))
+        MODEL_PATH, map_location=torch.device('cpu')))
     model.eval()
-    print("Model loaded successfully.")
-except Exception as e:
-    print("Error loading model:", e)
-    sys.exit(1)
+    return model
+
+
+# Initialize model
+model = get_densenet_model()
 
 # Define the transformations
 transform = transforms.Compose([
-    transforms.Resize((48, 48)),
-    transforms.Grayscale(),
+    transforms.Resize((512, 512)),
     transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 # Define emotions
@@ -85,7 +66,7 @@ def predict():
     try:
         print("Image received:", file.filename)
         img_bytes = file.read()
-        img = Image.open(io.BytesIO(img_bytes))
+        img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
         print("Image opened successfully.")
         img = transform(img)
         print("Image transformed successfully.")

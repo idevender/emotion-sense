@@ -5,19 +5,25 @@ from torchvision import transforms, models
 from PIL import Image
 import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.model_selection import train_test_split
 from tqdm.auto import tqdm
-import warnings
+import sys
+# Add the path to the specific folder containing Python packages
+specific_folder_path = r'/gpfs/home/dsingh/anaconda3/envs/second_try/lib'
+sys.path.append(specific_folder_path)
 
+
+# Check if CUDA is available and set device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-# Learning rate 
+# Learning rate
 LEARNING_RATE = 0.002
 BATCH_SIZE = 32
 NUM_EPOCHS = 50
-MODEL_PATH = 'backend/model/emotion_model.pth'
+MODEL_PATH = '../backend/model/emotion_model.pth'
 
 # Define the Dataset class to handle the images
+
+
 class EmotionDataset(Dataset):
     def __init__(self, root_dir, transform=None):
         self.root_dir = root_dir
@@ -69,9 +75,17 @@ def get_densenet_model(num_classes=3):
         nn.Dropout(0.5),
         nn.Linear(512, num_classes)
     )
+
+    # Use DataParallel if multiple GPUs are available
+    if torch.cuda.device_count() > 1:
+        print(f"Using {torch.cuda.device_count()} GPUs")
+        model = nn.DataParallel(model)
+
     return model.to(device)
 
 # Image transformation function for inference
+
+
 def image_transform(img):
     transform = transforms.Compose([
         transforms.Resize((512, 512)),
@@ -86,9 +100,12 @@ def image_transform(img):
 
 def load_model(model_path):
     model = get_densenet_model(num_classes=3)
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
     return model
+
+# Function for facial recognition
+
 
 def facial_recognize(image_path, model):
     img = image_transform(Image.open(image_path).convert('RGB'))
@@ -100,6 +117,8 @@ def facial_recognize(image_path, model):
     result = label_map.get(preds.item())
     return result
 
+# Function to train the model
+
 
 def train_model(root_dir, model_save_path=MODEL_PATH, num_epochs=NUM_EPOCHS):
     dataset = EmotionDataset(root_dir, transform=transform)
@@ -110,9 +129,9 @@ def train_model(root_dir, model_save_path=MODEL_PATH, num_epochs=NUM_EPOCHS):
     train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
     train_loader = DataLoader(
-        train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+        train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=2)
     val_loader = DataLoader(
-        val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4)
+        val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=2)
 
     model = get_densenet_model()
     criterion = nn.CrossEntropyLoss()
@@ -168,6 +187,8 @@ def train_model(root_dir, model_save_path=MODEL_PATH, num_epochs=NUM_EPOCHS):
     torch.save(model.state_dict(), model_save_path)
     print(f'Model saved to {model_save_path}')
 
+# Function to predict emotion from an image
+
 
 def predict_emotion(image_path):
     model = load_model(MODEL_PATH)
@@ -175,9 +196,6 @@ def predict_emotion(image_path):
 
 
 if __name__ == "__main__":
-    # Training the model (example usage)
     train_model('../data')
-
-    # Testing the model with an image (example usage)
-    emotion = predict_emotion('../data/Sad/0x0.jpg')
-    print(f'Predicted emotion: {emotion}')
+    # emotion = predict_emotion('./image.png')
+    # print(f'Predicted emotion: {emotion}')
