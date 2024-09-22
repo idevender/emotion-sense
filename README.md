@@ -93,6 +93,9 @@ Upon launching the system, you will be presented with a user-friendly interface 
 -   **Flask API**: A simple RESTful API that takes an image as input and returns the predicted emotion.
 -   **Frontend**: A React-based interface for image uploading and displaying the predicted emotion.
 
+### Result
+![sample_result](results.png)
+
 Future Improvements
 -------------------
 
