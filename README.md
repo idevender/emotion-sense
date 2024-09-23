@@ -121,5 +121,5 @@ This project was built as part of an exploration into AI-driven emotion detectio
 Authors
 -------
 
--   Devender Singh (idevender) - Frontend and Backend
--   Haoming Luo (JasonLuo2024) - Model
+-   Devender Singh (idevender) 
+-   Haoming Luo (JasonLuo2024) 
